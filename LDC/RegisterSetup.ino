@@ -22,7 +22,7 @@ unsigned long readChannel0()
     val += d; // LSB need to be at the bottom
     return val;
 }
-unsigned long readChannel()
+unsigned long readChannel1()
 {
     unsigned long val= 0;
     word c = 0;
@@ -69,14 +69,14 @@ uint16_t readValue(uint8_t addr, uint8_t reg)
     Wire.endTransmission(); // stop transmsion
 
     //Requesting 2 bytes(MSB,LSB) 
-    Wrie.requestFrom(addr, 2);
+    Wire.requestFrom(addr, 2);
 
 //     Code from previous group supposeldy dosent work becasue only reads bytes once becasue only 2 bytes are aviable
 //     while (Wire.available()) { 
 //     a = Wire.read(); 
 //     b = Wire.read(); 
 //   } 
-    uint8_t msb = wire.read();
+    uint8_t msb = Wire.read();
     uint8_t lsb = Wire.read();
     
     return (msb << 8) | lsb; //combine into 1 16 bit number by shifting

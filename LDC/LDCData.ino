@@ -27,9 +27,31 @@ void RawData()
 //function for ploting raw data
 void plotRawData()
 {
-
+    unsigned long p0 = readChannel0(); 
+    if(p0 != 268435455) data0 = p0; 
+    unsigned long p1 = readChannel1(); 
+    if(p1 != 268435455) data1 = p1; 
+    unsigned long p2 = readChannel2(); 
+    if(p2 != 268435455) data2 = p2; 
+    unsigned long p3 = readChannel0(); 
+    if(p3 != 268435455) data3 = p3; 
+    Serial.println(data1); 
 }
-
+void MATLABplotData()
+{
+  unsigned long p0 = readChannel0();
+  if (p0 != 268435455) data0 = p0;
+  unsigned long p1 = readChannel1();
+  if (p1 != 268435455) data1 = p1;
+  unsigned long p2 = readChannel2();
+  if (p2 != 268435455) data2 = p2;
+  // Send all three channels separated by commas
+  Serial.print(data0);
+  Serial.print(",");
+  Serial.print(data1);
+  Serial.print(",");
+  Serial.println(data2);
+}
 void setup()
 {
     Serial.begin(115200);
