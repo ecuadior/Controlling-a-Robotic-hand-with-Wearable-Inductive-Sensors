@@ -81,6 +81,41 @@ def MATLABplotData():
     print(f"{data0},{data1},{data2}")
 
 
+#LPF setting
+fs =100.0 # sampling frequency 100 Hz
+cutoff = 8.0 # cutoff freuncy 8Hz
+alpha = (2*3.1416*cutoff)/ (fs +2_3.1416*cutoff)
+
+#filter values
+lpf0=0
+lpf1=0
+lpf2=0
+lpf3=0 
+
+def LPFData():
+    global lpf0,lpf1,lpf2,lpf3
+    #read raw val
+    x0 = readChannel0()
+    x1 = readChannel1()
+    x2 = readChannel2()
+    x3 = readChannel3()
+
+    # ignore invalid readings
+    if x0 == 268435455 or x1 == 268435455 or x2 == 268435455 or x3 == 268435455:
+        return None
+     # Single-pole low-pass filter
+    #   -Measure how far off you are
+    #   -Move partway toward the new value
+    #   -Store it for next time
+    lpf0 = lpf0 + alpha *(x0-lpf0)
+    lpf1 = lpf1 + alpha *(x1-lpf1)
+    lpf2 = lpf2 + alpha *(x2-lpf2)
+    lpf3 = lpf3 + alpha *(x3-lpf3)
+
+    #output filter data
+    print(f"{int(lpf0)}, {int(lpf1)},{int(lpf2)},{int(lpf3)}")
+
+
 def setup():
     setupI2C()  # set up the register of LDC module
 
