@@ -82,15 +82,20 @@ def MATLABplotData():
 
 
 #LPF setting
-fs =100.0 # sampling frequency 100 Hz
-cutoff = 8.0 # cutoff freuncy 8Hz
-alpha = (2*3.1416*cutoff)/ (fs +2_3.1416*cutoff)
+fs = 100.0          # Hz
+cutoff = 8.0        # Hz
+
+dt = 1.0 / fs
+RC = 1.0 / (2 * 3.1416 * cutoff)
+alpha = dt / (RC + dt)
 
 #filter values
-lpf0=0
-lpf1=0
-lpf2=0
-lpf3=0 
+lpf0=None
+lpf1=None
+lpf2=None
+lpf3=None 
+
+INVALID = 268435455 
 
 def LPFData():
     global lpf0,lpf1,lpf2,lpf3
@@ -101,28 +106,46 @@ def LPFData():
     x3 = readChannel3()
 
     # ignore invalid readings
-    if x0 == 268435455 or x1 == 268435455 or x2 == 268435455 or x3 == 268435455:
-        return None
+    # Ignore invalid readings, but DO NOT return silently forever
+    if x0 != INVALID:
+        if lpf0 is None:
+            lpf0 = x0
+        else:
+            lpf0 += alpha * (x0 - lpf0)
+
+    if x1 != INVALID:
+        if lpf1 is None:
+            lpf1 = x1
+        else:
+            lpf1 += alpha * (x1 - lpf1)
+
+    if x2 != INVALID:
+        if lpf2 is None:
+            lpf2 = x2
+        else:
+            lpf2 += alpha * (x2 - lpf2)
+
+    if x3 != INVALID:
+        if lpf3 is None:
+            lpf3 = x3
+        else:
+            lpf3 += alpha * (x3 - lpf3)
+
+   # Only print when at least one channel is valid
+    if lpf0 is not None:
+        print(f"{int(lpf0)},{int(lpf1 or 0)},{int(lpf2 or 0)},{int(lpf3 or 0)}")
      # Single-pole low-pass filter
     #   -Measure how far off you are
     #   -Move partway toward the new value
     #   -Store it for next time
-    lpf0 = lpf0 + alpha *(x0-lpf0)
-    lpf1 = lpf1 + alpha *(x1-lpf1)
-    lpf2 = lpf2 + alpha *(x2-lpf2)
-    lpf3 = lpf3 + alpha *(x3-lpf3)
-
-    #output filter data
-    print(f"{int(lpf0)}, {int(lpf1)},{int(lpf2)},{int(lpf3)}")
-
 
 def setup():
     setupI2C()  # set up the register of LDC module
 
 
 def loop():
-    MATLABplotData()
-    time.sleep_ms(100)
+    LPFData()
+    time.sleep_ms(10)
 
 
 # ---- main execution ----
